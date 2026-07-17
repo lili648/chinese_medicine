@@ -35,4 +35,5 @@ Thumbs.db
 
 # Claude
 .claude/
-ppt-master
+# obsidian
+.obsidian/

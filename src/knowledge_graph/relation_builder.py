@@ -29,6 +29,7 @@ class RelationBuilder:
                     "target_id": f"E:{ent['entity_name']}",
                     "relation_type": "MENTIONS",
                     "frequency": ent.get("frequency", 1),
+                    "confidence": ent.get("confidence") or "High",
                 })
         return self._insert_relations(relations)
 
@@ -67,17 +68,20 @@ class RelationBuilder:
         # 需要根据医学知识库补充具体规则
         return 0
 
-    def _insert_relations(self, relations: List[Dict]) -> int:
-        """批量插入关系记录"""
+    def _insert_relations(self, relations: List[Dict], batch_size: int = 500) -> int:
+        """批量插入关系记录（每批提交，幂等：重跑覆盖不累加）"""
         if not relations:
             return 0
+        sql = text("""
+            INSERT INTO relation (source_id, target_id, relation_type, frequency, confidence)
+            VALUES (:source_id, :target_id, :relation_type, :frequency, :confidence)
+            ON DUPLICATE KEY UPDATE frequency=VALUES(frequency), confidence=VALUES(confidence)
+        """)
+        inserted = 0
         with self.engine.connect() as conn:
-            for rel in relations:
-                sql = text("""
-                    INSERT INTO relation (source_id, target_id, relation_type, frequency, confidence)
-                    VALUES (:source_id, :target_id, :relation_type, :frequency, :confidence)
-                    ON DUPLICATE KEY UPDATE frequency=frequency+1
-                """)
-                conn.execute(sql, rel)
-            conn.commit()
-        return len(relations)
+            for i in range(0, len(relations), batch_size):
+                batch = relations[i:i + batch_size]
+                conn.execute(sql, batch)
+                conn.commit()
+                inserted += len(batch)
+        return inserted

@@ -76,6 +76,32 @@
 
 ---
 
+### 2026-07-18 — 共现关系构建与写入（工作包 #8）
+
+#### 改造 `src/knowledge_graph/relation_builder.py` — 关系批量写入 ✅
+- `_insert_relations()` 从逐条插入改为**批量插入（500 条/批）**，大幅提升写入性能
+- `ON DUPLICATE KEY UPDATE` 改为 `frequency=VALUES(frequency), confidence=VALUES(confidence)` 幂等覆盖（而非累加），确保重跑结果一致
+- `build_mentions` 补 `confidence` 字段（"High"），修复批量 SQL 绑定参数不匹配的 `InvalidRequestError`
+
+#### 新增 `src/knowledge_graph/data_importer.py` — import_relations 编排方法
+- `import_relations(entities_raw)` — 接收 NER 原始实体提及列表，依次调用 `RelationBuilder.build_mentions` 与 `build_co_occur`，写入 relation 表
+- 返回 `{"mentions": N, "co_occurs": N}`
+
+#### 新增 `scripts/build_relations.py` — 一键关系构建脚本
+- 串联：**Pipeline 加载+预处理+NER → DataImporter.import_relations 入库**
+- 默认处理 `data/pubmed/` + `data/chinese/`
+- 运行结束打印 relation 表分布，便于校验
+- 幂等安全：唯一约束 `uk_relation(source_id, target_id, relation_type)` + ON DUPLICATE KEY UPDATE
+
+#### 实际构建验证（MySQL `chinese_medicine`）
+- **relation 表：3808 条关系边**
+  - MENTIONS（文献→实体）：2793 条
+  - CO_OCCURS（实体→实体）：1015 条
+- 图示概览：1221 文献 ⇄ 118 实体 ⇄ 3808 边
+- 端到端 `python -u scripts/build_relations.py` 运行通过，幂等重跑行数稳定
+
+---
+
 ### 2026-07-18 — 文本预处理与实体识别 Pipeline
 
 #### 重写 `src/ner/entity_dict.py` — 实体词典管理器（增强版）

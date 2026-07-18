@@ -4,6 +4,50 @@
 
 ---
 
+### 2026-07-18 — MySQL 环境搭建与表结构设计
+
+#### 新增 `scripts/init_mysql.sql` — MySQL DDL 建库建表脚本
+- 数据库 `chinese_medicine`，utf8mb4 字符集
+- 3 张核心表：
+  - **article** — 文献表（article_id PK, pmid, title, abstract, authors, journal, pub_year, language, source_file, created_at, updated_at）
+  - **entity** — 实体表（entity_id MD5 PK, name UNIQUE, entity_type Disease/Drug/Symptom, source, created_at, updated_at）
+  - **relation** — 关系表（id PK AUTO_INCREMENT, source_id, target_id, relation_type MENTIONS/CO_OCCURS/TREATS/HAS_SYMPTOM, frequency, confidence, created_at, updated_at）
+- 含唯一约束（uk_relation）和复合索引（idx_source_type）
+
+#### 完成 `src/knowledge_graph/db_schema.py` — SQLAlchemy ORM 模型 ✅
+- `Article` — 文献表 ORM 模型（11 列，4 个索引）
+- `Entity` — 实体表 ORM 模型（6 列，UNIQUE KEY + 索引）
+- `Relation` — 关系表 ORM 模型（8 列，自增 ID + UniqueConstraint + 索引 + __repr__）
+- 与 DDL 完全一致，支持 Base.metadata.create_all(engine) 自动建表
+
+#### 实现 `GraphEngine.load_from_mysql()` — MySQL → NetworkX 图加载
+- 三阶段加载流程：实体节点 → 文献节点 → 关系边
+- 节点 ID 前缀约定：`E:` 实体 / `A:` 文献
+- 边属性含 relation_type / frequency / confidence
+- 日志输出每阶段加载数量与最终图统计
+
+#### 新增 `src/knowledge_graph/query_api.py` — 图谱查询 API 封装 ✅
+- `get_top_entities(type, top_n)` — 按 MENTIONS 频次 Top-N 实体排行
+- `query_entity(name)` — 实体详情 + CO_OCCURS/TREATS/HAS_SYMPTOM 1-hop 邻居 + 关联文献
+- `get_entities_by_type(type)` — 按类型列出全部实体
+- `query_shortest_path(src, tgt)` — 纯 SQL BFS 最短路径（最大深度 6）
+- `query_article_entities(article_id)` — 文献详情 + MENTIONS 实体列表
+- `keyword_search(keyword, limit)` — 标题/摘要 LIKE 全文检索 + 关键词片段摘取
+- `get_statistics()` — 数据库统计信息（按类型、按关系类型分组计数）
+
+#### 修复 `src/db/db_session.py`
+- SQLAlchemy 2.0 兼容：`conn.execute()` 内部改为 `text()` 包装
+- 数据库密码更新为实际环境配置
+
+#### 更新 `src/knowledge_graph/__init__.py`
+- 导出：Base, Article, Entity, Relation, DataImporter, RelationBuilder, GraphEngine, QueryAPI
+
+#### 新增辅助脚本
+- `scripts/verify_mysql.py` — 数据库表结构验证工具
+- `scripts/test_connection.py` — SQLAlchemy 连接 + ORM 模型验证工具
+
+---
+
 ### 2026-07-18 — 文本预处理与实体识别 Pipeline
 
 #### 重写 `src/ner/entity_dict.py` — 实体词典管理器（增强版）
@@ -139,31 +183,27 @@
 
 ### 2026-07-18 — 知识图谱 + 数据库 + API + 前端模块搭建
 
-#### 新增 `src/knowledge_graph/` 知识图谱模块（部分实现）
+#### 新增 `src/knowledge_graph/` 知识图谱模块
+
+##### `db_schema.py` — SQLAlchemy ORM 模型 ✅
+- Article / Entity / Relation 三表模型，与 DDL 完全一致
 
 ##### `graph_engine.py` — NetworkX 图计算引擎 ✅
 - `load_from_json()` 从 NER 实体 JSON 构建 NetworkX 内存图
-- `load_from_mysql()` 从 MySQL 加载全量数据构建图（骨架，待 MySQL 建表后补全）
+- `load_from_mysql()` 从 MySQL 加载全量数据构建图（已完整实现）
 - `get_neighbors(node_id)` 查询 1-hop 邻居节点
 - `shortest_path(src, tgt)` 两实体最短路径（基于 NetworkX）
-- `to_echarts_format()` 转换为 ECharts 力导向图 JSON 格式（节点/边/度中心性映射 symbolSize）
+- `to_echarts_format()` 转换为 ECharts 力导向图 JSON 格式
 
-##### `relation_builder.py` — 关系构建器
-- 四种关系类型定义：
-  - `MENTIONS` — 文献 ↔ 实体提及关系（已实现，含去重）
-  - `CO_OCCURS` — 实体间共现关系（已实现，基于同一文献内实体对共现频次，threshold≥2，confidence High/Low）
-  - `TREATS` — Drug → Disease 治疗关系（骨架，需医学知识库补充规则）
-  - `HAS_SYMPTOM` — Disease → Symptom 症状关系（骨架）
-- `_insert_relations()` 批量 INSERT 带 `ON DUPLICATE KEY UPDATE`
+##### `relation_builder.py` — 关系构建器 ✅
+- 四种关系类型：MENTIONS / CO_OCCURS / TREATS / HAS_SYMPTOM（前两种已实现）
+- `_insert_relations()` 批量 INSERT 带 ON DUPLICATE KEY UPDATE
 
-##### `data_importer.py` — 数据导入器
-- `import_articles()` 批量导入 Article 到 article 表（500条/批，3次重试）
-- `import_entities()` 批量导入实体到 entity 表（MD5 生成 entity_id，500条/批）
-- `_batch_execute()` 通用批量执行 + INSERT ON DUPLICATE KEY UPDATE + 指数退避重试
+##### `data_importer.py` — 数据导入器 ✅
+- 批量导入 Article/Entity 到 MySQL（500条/批，3次重试 + 指数退避）
 
-##### 占位文件（待实现）
-- `db_schema.py` — SQLAlchemy ORM 表模型定义（空）
-- `query_api.py` — 图谱查询 API 封装（空）
+##### `query_api.py` — 图谱查询 API ✅
+- 7 个方法：get_top_entities / query_entity / get_entities_by_type / query_shortest_path / query_article_entities / keyword_search / get_statistics
 
 #### 新增 `src/db/` 数据库会话管理
 - `db_session.py` — SQLAlchemy 引擎/会话管理
@@ -236,7 +276,7 @@
 | `src/preprocessing/` | ✅ 完成 | data_loader.py, preprocessor.py | 57/57 |
 | `src/crawler/` | ✅ 完成 | base.py, pubmed_crawler.py, dict_expander.py, run_collection.py | 30/30 |
 | `src/ner/` | ✅ 完成 | entity_dict.py, entity_recognizer.py, pipeline.py | 46/46 |
-| `src/knowledge_graph/` | 🔶 部分完成 | graph_engine.py, relation_builder.py, data_importer.py | 0 |
+| `src/knowledge_graph/` | ✅ 完成 | db_schema.py, graph_engine.py, relation_builder.py, data_importer.py, query_api.py | 0 |
 | `src/db/` | ✅ 完成 | db_session.py | 0 |
 | `src/api/` | 🔴 骨架 | main.py（5 端点均为 pass） | 0 |
 | `frontend/` | 🔶 UI 完成 | Search/Detail/Graph/Admin.vue + client.js | 0 |
@@ -245,15 +285,11 @@
 
 | 优先级 | 事项 | 说明 |
 |--------|------|------|
-| P0 | `src/knowledge_graph/db_schema.py` | SQLAlchemy ORM 表模型定义（article/entity/relation） |
-| P0 | `src/knowledge_graph/query_api.py` | 图谱查询 API 封装 |
-| P0 | MySQL 数据库建表 | 根据 db_schema 创建 article/entity/relation 三表 |
 | P1 | `src/api/main.py` | 5 个 API 端点接入实际业务逻辑 |
 | P1 | `frontend/src/App.vue` | Vue Router 路由 + 主布局实现 |
 | P2 | Knowledge Graph 测试 | `tests/test_kg/` 补充测试 |
 | P2 | API 测试 | `tests/test_api/` 补充测试 |
 | P3 | RelationBuilder TREATS/HAS_SYMPTOM | 基于医学知识库补充治疗/症状关系规则 |
-| P3 | `GraphEngine.load_from_mysql()` | MySQL 建表后补全图加载逻辑 |
 
 ### 数据资产
 

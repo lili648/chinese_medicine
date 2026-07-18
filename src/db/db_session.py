@@ -2,12 +2,12 @@
 """
 SQLAlchemy 引擎/会话管理
 """
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from typing import Generator
 
 # MySQL 连接配置（待实际环境修改）
-DATABASE_URL = "mysql+pymysql://root:password@localhost:3306/chinese_medicine"
+DATABASE_URL = "mysql+pymysql://root:Liyizhang_10@localhost:3306/chinese_medicine"
 
 engine = create_engine(DATABASE_URL, pool_size=10, max_overflow=20, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -31,7 +31,7 @@ def is_connected() -> bool:
     """检查数据库连接状态"""
     try:
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
         return True
     except Exception:
         return False

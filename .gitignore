@@ -22,6 +22,9 @@ data/pubmed/*.json
 data/chinese/*.json
 output/entities.json
 
+# Pytest
+.pytest_cache/
+
 # OS
 .DS_Store
 Thumbs.db

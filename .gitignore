@@ -1,40 +1,31 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
 *.egg-info/
 dist/
 build/
-eggs/
-.eggs/
+.venv/
+venv/
 *.egg
 
-# Virtual environment
-venv/
-.venv/
-env/
-.env/
+# Node / Vue
+node_modules/
+frontend/dist/
 
 # IDE
-.idea/
 .vscode/
+.idea/
 *.swp
-*.swo
+
+# 数据文件 (敏感)
+data/pubmed/*.json
+data/chinese/*.json
+output/entities.json
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Environment
-.env
-.env.local
-
-# Claude
-.claude/
-# obsidian
-.obsidian
-.codebuddy
+# 临时文件
+*.tmp
+~$*

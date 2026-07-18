@@ -1,0 +1,32 @@
+{
+  "total_articles": 1209,
+  "total_entities": 2759,
+  "unique_entities": 117,
+  "elapsed_seconds": 0.0,
+  "dict_stats": {
+    "Disease": 173,
+    "Drug": 223,
+    "Symptom": 132,
+    "Total": 518,
+    "EN_Mappings": 136
+  },
+  "recognize_stats": {
+    "articles_with_entities": 958,
+    "entities_by_type": {
+      "Disease": 1182,
+      "Drug": 1475,
+      "Symptom": 102
+    },
+    "entities_by_method": {
+      "en_rule_disease": 689,
+      "en_dict_phrase": 679,
+      "en_rule_tcm": 1170,
+      "en_keyword": 50,
+      "en_rule_symptom": 87,
+      "en_rule_herb": 55,
+      "fmm": 26,
+      "jieba_concat": 2,
+      "jieba_dict": 1
+    }
+  }
+}

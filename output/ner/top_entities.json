@@ -1,0 +1,252 @@
+[
+  {
+    "entity_name": "中医",
+    "entity_type": "Drug",
+    "frequency": 494
+  },
+  {
+    "entity_name": "糖尿病",
+    "entity_type": "Disease",
+    "frequency": 306
+  },
+  {
+    "entity_name": "2型糖尿病",
+    "entity_type": "Disease",
+    "frequency": 167
+  },
+  {
+    "entity_name": "草药",
+    "entity_type": "Drug",
+    "frequency": 159
+  },
+  {
+    "entity_name": "脑卒中",
+    "entity_type": "Disease",
+    "frequency": 149
+  },
+  {
+    "entity_name": "冠心病",
+    "entity_type": "Disease",
+    "frequency": 138
+  },
+  {
+    "entity_name": "中药",
+    "entity_type": "Drug",
+    "frequency": 138
+  },
+  {
+    "entity_name": "肿瘤",
+    "entity_type": "Drug",
+    "frequency": 137
+  },
+  {
+    "entity_name": "针灸",
+    "entity_type": "Drug",
+    "frequency": 136
+  },
+  {
+    "entity_name": "网络药理学",
+    "entity_type": "Drug",
+    "frequency": 109
+  },
+  {
+    "entity_name": "高血压",
+    "entity_type": "Disease",
+    "frequency": 100
+  },
+  {
+    "entity_name": "心肌梗死",
+    "entity_type": "Disease",
+    "frequency": 66
+  },
+  {
+    "entity_name": "分子对接",
+    "entity_type": "Drug",
+    "frequency": 38
+  },
+  {
+    "entity_name": "高血糖",
+    "entity_type": "Disease",
+    "frequency": 38
+  },
+  {
+    "entity_name": "缺血性脑卒中",
+    "entity_type": "Disease",
+    "frequency": 33
+  },
+  {
+    "entity_name": "肥胖",
+    "entity_type": "Drug",
+    "frequency": 26
+  },
+  {
+    "entity_name": "心力衰竭",
+    "entity_type": "Disease",
+    "frequency": 23
+  },
+  {
+    "entity_name": "抑郁症",
+    "entity_type": "Disease",
+    "frequency": 21
+  },
+  {
+    "entity_name": "乏力",
+    "entity_type": "Symptom",
+    "frequency": 17
+  },
+  {
+    "entity_name": "辨证论治",
+    "entity_type": "Drug",
+    "frequency": 16
+  },
+  {
+    "entity_name": "丹参",
+    "entity_type": "Drug",
+    "frequency": 16
+  },
+  {
+    "entity_name": "肺癌",
+    "entity_type": "Disease",
+    "frequency": 15
+  },
+  {
+    "entity_name": "穴位",
+    "entity_type": "Drug",
+    "frequency": 15
+  },
+  {
+    "entity_name": "艾灸",
+    "entity_type": "Drug",
+    "frequency": 14
+  },
+  {
+    "entity_name": "乳腺癌",
+    "entity_type": "Disease",
+    "frequency": 13
+  },
+  {
+    "entity_name": "焦虑",
+    "entity_type": "Symptom",
+    "frequency": 13
+  },
+  {
+    "entity_name": "胃癌",
+    "entity_type": "Disease",
+    "frequency": 12
+  },
+  {
+    "entity_name": "系统药理学",
+    "entity_type": "Drug",
+    "frequency": 12
+  },
+  {
+    "entity_name": "腹泻",
+    "entity_type": "Symptom",
+    "frequency": 11
+  },
+  {
+    "entity_name": "电针",
+    "entity_type": "Drug",
+    "frequency": 11
+  },
+  {
+    "entity_name": "结直肠癌",
+    "entity_type": "Disease",
+    "frequency": 10
+  },
+  {
+    "entity_name": "发热",
+    "entity_type": "Symptom",
+    "frequency": 10
+  },
+  {
+    "entity_name": "慢性肾病",
+    "entity_type": "Disease",
+    "frequency": 9
+  },
+  {
+    "entity_name": "代谢综合征",
+    "entity_type": "Disease",
+    "frequency": 9
+  },
+  {
+    "entity_name": "肝细胞癌",
+    "entity_type": "Disease",
+    "frequency": 9
+  },
+  {
+    "entity_name": "高脂血症",
+    "entity_type": "Disease",
+    "frequency": 9
+  },
+  {
+    "entity_name": "阿尔茨海默病",
+    "entity_type": "Disease",
+    "frequency": 9
+  },
+  {
+    "entity_name": "失眠",
+    "entity_type": "Symptom",
+    "frequency": 9
+  },
+  {
+    "entity_name": "失眠",
+    "entity_type": "Disease",
+    "frequency": 9
+  },
+  {
+    "entity_name": "慢性肾病",
+    "entity_type": "Drug",
+    "frequency": 8
+  },
+  {
+    "entity_name": "姜黄素",
+    "entity_type": "Drug",
+    "frequency": 8
+  },
+  {
+    "entity_name": "白藜芦醇",
+    "entity_type": "Drug",
+    "frequency": 8
+  },
+  {
+    "entity_name": "黄芪",
+    "entity_type": "Drug",
+    "frequency": 8
+  },
+  {
+    "entity_name": "丹参酮",
+    "entity_type": "Drug",
+    "frequency": 7
+  },
+  {
+    "entity_name": "甘草",
+    "entity_type": "Drug",
+    "frequency": 7
+  },
+  {
+    "entity_name": "头晕",
+    "entity_type": "Symptom",
+    "frequency": 7
+  },
+  {
+    "entity_name": "咳嗽",
+    "entity_type": "Symptom",
+    "frequency": 7
+  },
+  {
+    "entity_name": "哮喘",
+    "entity_type": "Disease",
+    "frequency": 5
+  },
+  {
+    "entity_name": "非小细胞肺癌",
+    "entity_type": "Disease",
+    "frequency": 5
+  },
+  {
+    "entity_name": "小檗碱",
+    "entity_type": "Drug",
+    "frequency": 5
+  }
+]

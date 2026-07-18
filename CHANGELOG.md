@@ -48,6 +48,34 @@
 
 ---
 
+### 2026-07-18 — 知识图谱节点批量导入（工作包 #7）
+
+#### 新增 `src/knowledge_graph/data_importer.py` — 节点批量导入编排 ✅
+- `import_nodes(articles, entities_raw)` — 图谱节点批量导入编排方法
+  - 先按 `(entity_name, entity_type)` 去重实体，再分别写入 article / entity 表
+  - 返回 `(导入文献数, 导入唯一实体数)`
+- `_dedup_entities(entities_raw)` — 按名称+类型去重，过滤空值，补 `source="ner"`
+- 修复 `import_articles` / `import_entities`：**每批提交（batch commit）**，避免大数据量导入被中断时整体回滚
+- 补 `import logging` 与 `logger` 定义（原文件缺失，导致 `import_nodes` 调用 `logger.info` 抛 `NameError`）
+
+#### 新增 `scripts/import_nodes.py` — 一键节点批量导入脚本
+- 串联流程：**DataLoader 加载 → Pipeline 预处理+NER → DataImporter.import_nodes 入库**
+- 默认导入 `data/pubmed/` 与 `data/chinese/`，支持 `--data-dir` 自定义目录（可多个）
+- 运行结束打印 article / entity 表计数与实体类型分布，便于校验
+- 幂等安全：article 按 article_id、entity 按 name 唯一约束 + ON DUPLICATE KEY UPDATE，重复运行不报错、不产生脏数据
+
+#### 修复 `src/ner/pipeline.py` — `load_data()` Bug
+- 原 `load_directory(input_path, file_pattern)` 调用传入 2 个位置参数，但 `DataLoader.load_directory` 仅接收 `(self, dir_path)`，整目录导入时抛 `TypeError`（此前 `run_pipeline.py` 只传单文件故未触发）
+- 修正为 `load_directory(input_path)`，目录模式按扩展名过滤
+
+#### 实际导入验证（MySQL `chinese_medicine`）
+- **article 表：1221 篇文献**（含 data/pubmed 15 个 CSV + 1 个 JSON，data/chinese 测试数据 12 条）
+- **entity 表：118 个唯一实体**（Drug 8 / Disease 6 / Symptom 3 来自测试集，其余来自 PubMed 文献 NER）
+- 实体类型分布符合 Disease/Drug/Symptom 约束
+- 端到端脚本 `python -u scripts/import_nodes.py` 运行通过，幂等重跑行数稳定
+
+---
+
 ### 2026-07-18 — 文本预处理与实体识别 Pipeline
 
 #### 重写 `src/ner/entity_dict.py` — 实体词典管理器（增强版）

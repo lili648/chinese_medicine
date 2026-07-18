@@ -204,7 +204,9 @@ class Pipeline:
             else:
                 articles = self.data_loader.load_directory(input_path, file_pattern)
         else:
-            articles = self.data_loader.load_directory(input_path, file_pattern)
+            # DataLoader.load_directory 仅接收 dir_path（内部按扩展名过滤，
+            # file_pattern 参数无效），故不传第二参数
+            articles = self.data_loader.load_directory(input_path)
 
         self.stats.load = self.data_loader.stats
         logger.info("加载完成: %d 篇文献", len(articles))

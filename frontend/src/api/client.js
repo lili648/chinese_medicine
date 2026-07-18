@@ -30,4 +30,19 @@ export default {
   keywordSearch(q) {
     return api.get('/search', { params: { q } })
   },
+
+  /** 获取图谱数据 (ECharts 力导向图) */
+  getGraphData() {
+    return api.get('/graph/data')
+  },
+
+  /** 获取数据库统计概览 */
+  getStats() {
+    return api.get('/stats')
+  },
+
+  /** 按类型列出实体 */
+  listEntities(entityType) {
+    return api.get('/entities', { params: { entity_type: entityType } })
+  },
 }

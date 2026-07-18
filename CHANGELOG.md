@@ -102,6 +102,56 @@
 
 ---
 
+### 2026-07-18 — SQL 查询与图谱 API 封装（工作包 #9）
+
+#### 重写 `src/api/main.py` — FastAPI 端点全线贯通 ✅
+- **5 个骨架桩端点全部实现**，对接 `QueryAPI` / `GraphEngine`：
+
+| 端点 | 方法 | 功能 |
+|------|------|------|
+| `/api/search?q=` | GET | 关键词检索文献 + 每篇文献附带关联实体列表 |
+| `/api/query/entity` | POST | 实体详情 + 1-hop 邻居 + 关联文献（50+20 条） |
+| `/api/query/top?entity_type=&n=` | GET | 按 MENTIONS 频次 Top-N 实体排名 |
+| `/api/query/path` | POST | 两实体 CO_OCCURS 最短路径（BFS，最大深度 6） |
+| `/api/query/article?article_id=` | GET | 文献详情 + 关联实体（全字段） |
+
+- **新增 3 个端点**补全前端需求：
+
+| 端点 | 方法 | 功能 |
+|------|------|------|
+| `/api/graph/data` | GET | ECharts 力导向图 JSON（nodes + links，来自 NetworkX 图） |
+| `/api/stats` | GET | 数据库概览统计（文章/实体/关系总数 + 分布） |
+| `/api/entities?entity_type=` | GET | 按类型列出全部实体（供下拉选择） |
+
+- **CORS 中间件**：开放跨域请求，前端 Vue (Vite) 开发环境直接调用
+- **单例模式**：`QueryAPI` 和 `GraphEngine` 延迟初始化，复用连接
+- **搜索端点增强**：关键词检索结果批量补充每篇文献的 MENTIONS 实体列表（一趟 SQL 避免 N+1）
+- **错误处理**：404 `HTTPException` 优雅返回
+
+#### 更新 `frontend/src/api/client.js` — 新增 3 个 API 方法
+- `getGraphData()` — 获取 ECharts 图谱数据
+- `getStats()` — 获取统计概览
+- `listEntities(entityType)` — 按类型列出实体
+
+#### 端到端测试验证（11 端点全通过）
+
+| 测试项 | 结果 |
+|--------|------|
+| `/api/stats` | 1221 文章 / 118 实体 / 3808 关系 |
+| `/api/search?q=糖尿病` | 50 条文献 + 实体标签 |
+| `/api/query/entity {糖尿病}` | 50 邻居 + 20 关联文献 |
+| `/api/query/top (Drug,5)` | 5 条排名 |
+| `/api/query/path {中医→糖尿病}` | 2 跳路径 |
+| `/api/query/path {不存在A→不存在B}` | found=false |
+| `/api/query/article` | 文献详情 + 实体 |
+| 404 测试 (entity/article) | 均正确返回 404 |
+| `/api/graph/data` | 1345 nodes + 3808 edges |
+| `/api/entities?entity_type=Disease` | 35 个疾病实体 |
+
+- 启动命令：`uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000`
+
+---
+
 ### 2026-07-18 — 文本预处理与实体识别 Pipeline
 
 #### 重写 `src/ner/entity_dict.py` — 实体词典管理器（增强版）
